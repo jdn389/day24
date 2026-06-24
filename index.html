@@ -1,0 +1,1117 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>유형별 해양사고 현황 대시보드</title>
+    <style>
+      :root {
+        --nike-black: #111111;
+        --nike-white: #ffffff;
+        --nike-cloud: #f5f5f5;
+        --nike-hairline: #cacacb;
+        --nike-soft-line: #e5e5e5;
+        --nike-muted: #707072;
+        --nike-charcoal: #39393b;
+        --nike-sale: #d30005;
+        --nike-teal: #0a7281;
+        --nike-amber: #c97814;
+        --panel-gap: 24px;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        min-width: 320px;
+        background: var(--nike-white);
+        color: var(--nike-black);
+        font-family: "Inter", "Segoe UI", "Noto Sans KR", Arial, sans-serif;
+      }
+
+      button,
+      input,
+      select {
+        font: inherit;
+      }
+
+      body {
+        background:
+          linear-gradient(180deg, var(--nike-cloud) 0 132px, var(--nike-white) 132px 100%);
+      }
+
+      .dashboard {
+        width: min(1440px, calc(100% - 40px));
+        margin: 0 auto;
+        padding: 0 0 40px;
+      }
+
+      .utility-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        min-height: 36px;
+        padding: 0 2px;
+        color: var(--nike-muted);
+        font-size: 12px;
+        font-weight: 600;
+      }
+
+      .utility-links {
+        display: flex;
+        gap: 14px;
+      }
+
+      .hero {
+        display: grid;
+        grid-template-columns: 1.5fr 0.8fr;
+        gap: var(--panel-gap);
+        align-items: end;
+        padding: 22px 0 30px;
+        border-bottom: 1px solid var(--nike-hairline);
+      }
+
+      .hero-copy {
+        min-width: 0;
+      }
+
+      .eyebrow {
+        margin: 0 0 10px;
+        color: var(--nike-muted);
+        font-size: 13px;
+        font-weight: 700;
+        text-transform: uppercase;
+      }
+
+      .display-kicker {
+        margin: 0;
+        font-family: Impact, Haettenschweiler, "Arial Narrow Bold", sans-serif;
+        font-size: clamp(54px, 12vw, 124px);
+        line-height: 0.88;
+        text-transform: uppercase;
+      }
+
+      .hero-title {
+        margin: 10px 0 0;
+        font-size: clamp(24px, 3.2vw, 34px);
+        font-weight: 700;
+        line-height: 1.1;
+      }
+
+      .hero-note {
+        margin: 14px 0 0;
+        max-width: 760px;
+        color: var(--nike-charcoal);
+        font-size: 15px;
+        line-height: 1.6;
+      }
+
+      .period-panel {
+        align-self: stretch;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        min-height: 156px;
+        padding: 20px 22px;
+        border: 1px solid var(--nike-black);
+        background: var(--nike-black);
+        color: var(--nike-white);
+      }
+
+      .period-panel span {
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+      }
+
+      .period-panel strong {
+        font-size: clamp(26px, 4vw, 44px);
+        line-height: 0.95;
+      }
+
+      .controls {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 14px;
+        padding: 18px 0 26px;
+        border-bottom: 1px solid var(--nike-soft-line);
+      }
+
+      .control-cluster {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .pill-label {
+        color: var(--nike-muted);
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+      }
+
+      .pill-select,
+      .pill-toggle,
+      .pill-button {
+        min-height: 48px;
+        border-radius: 9999px;
+      }
+
+      .pill-select {
+        min-width: 132px;
+        padding: 0 18px;
+        border: 1px solid var(--nike-hairline);
+        background: var(--nike-cloud);
+        color: var(--nike-black);
+      }
+
+      .range-separator {
+        color: var(--nike-muted);
+        font-size: 22px;
+        font-weight: 700;
+      }
+
+      .pill-toggle {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 0 16px;
+        border: 1px solid var(--nike-hairline);
+        background: var(--nike-white);
+        color: var(--nike-black);
+        font-size: 14px;
+        font-weight: 700;
+        white-space: nowrap;
+      }
+
+      .pill-toggle input {
+        width: 16px;
+        height: 16px;
+        margin: 0;
+        accent-color: var(--nike-black);
+      }
+
+      .pill-button {
+        min-width: 128px;
+        padding: 0 26px;
+        border: 0;
+        background: var(--nike-black);
+        color: var(--nike-white);
+        font-size: 15px;
+        font-weight: 700;
+        cursor: pointer;
+      }
+
+      .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 12px;
+        padding: 28px 0;
+      }
+
+      .summary-card {
+        min-height: 154px;
+        padding: 18px;
+        border: 1px solid var(--nike-hairline);
+        background: var(--nike-white);
+      }
+
+      .summary-card.accent {
+        background: var(--nike-black);
+        color: var(--nike-white);
+      }
+
+      .summary-card span,
+      .summary-card small {
+        display: block;
+        color: var(--nike-muted);
+      }
+
+      .summary-card.accent span,
+      .summary-card.accent small {
+        color: rgba(255, 255, 255, 0.74);
+      }
+
+      .summary-card span {
+        margin-bottom: 12px;
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+      }
+
+      .summary-card strong {
+        display: block;
+        margin-bottom: 8px;
+        font-size: clamp(28px, 4vw, 44px);
+        line-height: 0.95;
+        font-weight: 800;
+      }
+
+      .summary-card small {
+        font-size: 13px;
+        line-height: 1.45;
+      }
+
+      .section-block {
+        padding: 24px 0 0;
+        border-top: 1px solid var(--nike-soft-line);
+      }
+
+      .section-heading {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 18px;
+        margin-bottom: 14px;
+      }
+
+      .section-heading h2 {
+        margin: 0;
+        font-size: 28px;
+        line-height: 1;
+        font-weight: 800;
+        text-transform: uppercase;
+      }
+
+      .section-heading p {
+        margin: 8px 0 0;
+        color: var(--nike-muted);
+        font-size: 14px;
+        font-weight: 600;
+      }
+
+      #barChartMeta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-top: 10px;
+        font-size: 20px;
+        line-height: 1.1;
+        font-weight: 700;
+      }
+
+      .meta-highlight {
+        color: var(--nike-sale);
+        font-size: 24px;
+        font-weight: 800;
+      }
+
+      .meta-text {
+        color: var(--nike-black);
+      }
+
+      .type-filter {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        gap: 10px;
+        max-width: 760px;
+      }
+
+      .type-filter label {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        min-height: 40px;
+        padding: 0 16px;
+        border: 1px solid var(--nike-hairline);
+        border-radius: 9999px;
+        background: var(--nike-white);
+        font-size: 14px;
+        font-weight: 700;
+      }
+
+      .type-filter input {
+        width: 16px;
+        height: 16px;
+        margin: 0;
+        accent-color: var(--nike-black);
+      }
+
+      .table-wrap {
+        overflow-x: auto;
+        border-top: 2px solid var(--nike-black);
+      }
+
+      table {
+        width: 100%;
+        min-width: 980px;
+        border-collapse: collapse;
+        font-size: 14px;
+      }
+
+      th,
+      td {
+        padding: 10px 12px;
+        border-bottom: 1px solid var(--nike-soft-line);
+        text-align: right;
+        white-space: nowrap;
+      }
+
+      th:first-child,
+      td:first-child {
+        position: sticky;
+        left: 0;
+        background: var(--nike-white);
+        text-align: left;
+        z-index: 1;
+      }
+
+      thead th {
+        background: var(--nike-cloud);
+        font-size: 12px;
+        font-weight: 800;
+        text-transform: uppercase;
+      }
+
+      th.total-column,
+      td.total-cell {
+        font-weight: 800;
+      }
+
+      tbody tr:hover td {
+        background: #fafafa;
+      }
+
+      tfoot td {
+        background: var(--nike-cloud);
+        font-weight: 800;
+      }
+
+      .visual-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 28px;
+        padding-top: 24px;
+      }
+
+      .chart-panel {
+        padding-top: 2px;
+      }
+
+      .wide-panel {
+        grid-column: 1 / -1;
+      }
+
+      .chart-frame {
+        width: 100%;
+        min-height: 248px;
+      }
+
+      .chart-frame svg,
+      .recent-chart svg {
+        display: block;
+        width: 100%;
+        height: auto;
+      }
+
+      .axis-label {
+        fill: var(--nike-muted);
+        font-size: 12px;
+      }
+
+      .chart-value {
+        fill: var(--nike-black);
+        font-size: 12px;
+        font-weight: 700;
+      }
+
+      .line-main {
+        fill: none;
+        stroke: var(--nike-black);
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        stroke-width: 4;
+      }
+
+      .line-area {
+        fill: rgba(17, 17, 17, 0.09);
+      }
+
+      .grid-line {
+        stroke: var(--nike-soft-line);
+        stroke-width: 1;
+      }
+
+      .dot {
+        fill: var(--nike-white);
+        stroke: var(--nike-black);
+        stroke-width: 3;
+      }
+
+      .bar-top {
+        fill: var(--nike-black);
+      }
+
+      .bar-regular {
+        fill: var(--nike-charcoal);
+      }
+
+      .recent-chart {
+        min-height: 264px;
+      }
+
+      .recent-value {
+        fill: var(--nike-black);
+        font-size: 13px;
+        font-weight: 800;
+      }
+
+      .recent-year {
+        fill: var(--nike-muted);
+        font-size: 13px;
+        font-weight: 700;
+      }
+
+      .empty-state {
+        display: grid;
+        min-height: 220px;
+        place-items: center;
+        color: var(--nike-muted);
+        font-size: 14px;
+        font-weight: 700;
+      }
+
+      @media (max-width: 1180px) {
+        .hero,
+        .summary-grid,
+        .visual-grid {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .period-panel,
+        .wide-panel {
+          grid-column: 1 / -1;
+        }
+      }
+
+      @media (max-width: 760px) {
+        body {
+          background: linear-gradient(180deg, var(--nike-cloud) 0 96px, var(--nike-white) 96px 100%);
+        }
+
+        .dashboard {
+          width: min(100% - 24px, 1440px);
+        }
+
+        .utility-bar,
+        .section-heading,
+        .control-cluster,
+        .hero {
+          display: block;
+        }
+
+        .utility-links {
+          display: none;
+        }
+
+        .period-panel {
+          margin-top: 20px;
+          min-height: 124px;
+        }
+
+        .controls,
+        .summary-grid,
+        .visual-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .control-cluster {
+          display: flex;
+          flex-wrap: wrap;
+        }
+
+        .pill-select {
+          flex: 1 1 132px;
+        }
+
+        .summary-card {
+          min-height: 122px;
+        }
+
+        .section-heading h2 {
+          font-size: 22px;
+        }
+
+        .type-filter {
+          justify-content: flex-start;
+          margin-top: 14px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="dashboard">
+      <div class="utility-bar">
+        <span>MARINE SAFETY DATA DASHBOARD</span>
+        <div class="utility-links">
+          <span>Overview</span>
+          <span>Accidents</span>
+          <span>Trends</span>
+          <span>Filters</span>
+        </div>
+      </div>
+
+      <header class="hero">
+        <div class="hero-copy">
+          <p class="eyebrow">해양수산부 유형별 해양사고현황</p>
+          <p class="display-kicker">Marine<br>Accidents</p>
+          <h1 class="hero-title">유형별 해양사고 현황 대시보드</h1>
+          <p class="hero-note">데이터가 말하고 크롬은 물러서는 방식으로 구성했습니다. 연도 필터, 평면형 표, 밀도 높은 차트가 중심인 리테일 에디토리얼 톤의 분석 화면입니다.</p>
+        </div>
+        <div class="period-panel">
+          <span>데이터 기간</span>
+          <strong id="dataPeriod">-</strong>
+        </div>
+      </header>
+
+      <section class="controls" aria-label="필터">
+        <div class="control-cluster">
+          <span class="pill-label">시작 연도</span>
+          <select id="startYear" class="pill-select" aria-label="시작 연도 선택"></select>
+          <span class="range-separator" aria-hidden="true">~</span>
+          <span class="pill-label">종료 연도</span>
+          <select id="endYear" class="pill-select" aria-label="종료 연도 선택"></select>
+          <label class="pill-toggle" for="singleYearOnly">
+            <input id="singleYearOnly" type="checkbox">
+            <span>해당연도만 검색</span>
+          </label>
+        </div>
+        <button id="resetFilters" class="pill-button" type="button">초기화</button>
+      </section>
+
+      <section class="summary-grid" aria-label="요약">
+        <article class="summary-card">
+          <span>선택 기간 총 사고</span>
+          <strong id="totalAccidents">-</strong>
+          <small id="selectedPeriod">-</small>
+        </article>
+        <article class="summary-card">
+          <span>연평균 사고</span>
+          <strong id="avgAccidents">-</strong>
+          <small>총계 기준</small>
+        </article>
+        <article class="summary-card">
+          <span>최다 발생 연도</span>
+          <strong id="peakYear">-</strong>
+          <small id="peakYearDetail">-</small>
+        </article>
+        <article class="summary-card accent">
+          <span>최다 발생 유형</span>
+          <strong id="topType">-</strong>
+          <small id="topTypeDetail">-</small>
+        </article>
+      </section>
+
+      <section class="section-block" aria-labelledby="tableTitle">
+        <div class="section-heading">
+          <div>
+            <h2 id="tableTitle">연도별 데이터 표</h2>
+            <p id="tableMeta">-</p>
+          </div>
+          <div class="type-filter" id="typeFilter" aria-label="사고 유형 선택"></div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead id="dataTableHead"></thead>
+            <tbody id="dataTableBody"></tbody>
+            <tfoot id="dataTableFoot"></tfoot>
+          </table>
+        </div>
+      </section>
+
+      <section class="visual-grid" aria-label="시각화">
+        <article class="chart-panel">
+          <div class="section-heading">
+            <div>
+              <h2>연도별 총 사고 건수 추이</h2>
+              <p>선택한 연도 범위 기준</p>
+            </div>
+          </div>
+          <div id="lineChart" class="chart-frame"></div>
+        </article>
+
+        <article class="chart-panel">
+          <div class="section-heading">
+            <div>
+              <h2>사고 유형별 합계</h2>
+              <p id="barChartMeta">-</p>
+            </div>
+          </div>
+          <div id="barChart" class="chart-frame"></div>
+        </article>
+
+        <article class="chart-panel wide-panel">
+          <div class="section-heading">
+            <div>
+              <h2>최근 5년 추이</h2>
+              <p id="recentMeta">-</p>
+            </div>
+          </div>
+          <div id="recentChart" class="recent-chart"></div>
+        </article>
+      </section>
+    </main>
+
+    <script>
+      const rawCsv = `
+1998,772,147,5,77,14,60,84,4,242,24,10,2,48,4,8,43,0,0
+1999,849,173,2,68,27,67,90,4,269,18,15,2,24,2,13,73,2,0
+2000,634,130,11,58,19,48,63,2,196,8,5,1,23,0,19,51,0,0
+2001,610,141,15,60,21,62,72,1,135,8,6,1,25,1,17,44,1,0
+2002,557,184,13,58,29,42,55,0,110,9,3,0,18,3,20,13,0,0
+2003,531,182,9,65,22,53,50,2,57,12,1,2,21,0,43,12,0,0
+2004,804,210,12,75,35,57,69,1,147,17,12,0,45,1,80,42,1,0
+2005,658,172,10,46,22,71,45,1,166,17,14,0,16,2,34,41,1,0
+2006,657,167,17,66,16,41,25,0,195,11,14,0,11,1,20,68,5,0
+2007,566,148,9,39,21,37,19,1,185,4,17,0,8,1,11,65,1,0
+2008,480,125,15,32,8,25,18,0,145,7,14,0,11,2,17,61,0,0
+2009,723,160,10,43,18,34,22,2,253,16,29,0,16,1,21,96,2,0
+2010,737,174,22,64,17,25,22,0,236,8,24,1,9,4,33,91,7,0
+2011,946,208,23,64,38,57,27,0,261,13,18,1,41,4,82,101,8,0
+2012,726,157,21,53,25,55,26,11,178,7,13,0,44,3,57,68,8,0
+      `.trim();
+
+      const labels = {
+        year: "연도",
+        total: "총계",
+        collision: "충돌",
+        contact: "접촉",
+        grounding: "좌초",
+        capsize: "전복",
+        fire: "화재/폭발",
+        sinking: "침몰",
+        missing: "행방불명",
+        engine: "기관손상",
+        propeller: "추진기손상",
+        rudder: "키손상",
+        gear: "속구손상",
+        distress: "조난",
+        facility: "시설물손상",
+        casualty: "인명사상",
+        safeNavigation: "안전운항저해",
+        pollution: "해양오염",
+        other: "기타",
+      };
+
+      const columns = [
+        { key: "year", label: labels.year },
+        { key: "total", label: labels.total },
+        { key: "collision", label: labels.collision },
+        { key: "contact", label: labels.contact },
+        { key: "grounding", label: labels.grounding },
+        { key: "capsize", label: labels.capsize },
+        { key: "fire", label: labels.fire },
+        { key: "sinking", label: labels.sinking },
+        { key: "missing", label: labels.missing },
+        { key: "engine", label: labels.engine },
+        { key: "propeller", label: labels.propeller },
+        { key: "rudder", label: labels.rudder },
+        { key: "gear", label: labels.gear },
+        { key: "distress", label: labels.distress },
+        { key: "facility", label: labels.facility },
+        { key: "casualty", label: labels.casualty },
+        { key: "safeNavigation", label: labels.safeNavigation },
+        { key: "pollution", label: labels.pollution },
+        { key: "other", label: labels.other },
+      ];
+
+      const majorTypeKeys = ["collision", "sinking", "engine", "distress", "safeNavigation", "fire", "grounding"];
+      const rows = rawCsv.split("\n").map((line) => {
+        const values = line.split(",").map(Number);
+        return Object.fromEntries(columns.map((column, index) => [column.key, values[index]]));
+      });
+
+      const years = rows.map((row) => row.year);
+      const firstYear = Math.min(...years);
+      const lastYear = Math.max(...years);
+
+      const filters = {
+        enabledTypes: new Set(majorTypeKeys),
+      };
+
+      const els = {
+        dataPeriod: document.getElementById("dataPeriod"),
+        startYear: document.getElementById("startYear"),
+        endYear: document.getElementById("endYear"),
+        singleYearOnly: document.getElementById("singleYearOnly"),
+        resetFilters: document.getElementById("resetFilters"),
+        totalAccidents: document.getElementById("totalAccidents"),
+        selectedPeriod: document.getElementById("selectedPeriod"),
+        avgAccidents: document.getElementById("avgAccidents"),
+        peakYear: document.getElementById("peakYear"),
+        peakYearDetail: document.getElementById("peakYearDetail"),
+        topType: document.getElementById("topType"),
+        topTypeDetail: document.getElementById("topTypeDetail"),
+        tableMeta: document.getElementById("tableMeta"),
+        typeFilter: document.getElementById("typeFilter"),
+        dataTableHead: document.getElementById("dataTableHead"),
+        dataTableBody: document.getElementById("dataTableBody"),
+        dataTableFoot: document.getElementById("dataTableFoot"),
+        lineChart: document.getElementById("lineChart"),
+        barChart: document.getElementById("barChart"),
+        recentChart: document.getElementById("recentChart"),
+        barChartMeta: document.getElementById("barChartMeta"),
+        recentMeta: document.getElementById("recentMeta"),
+      };
+
+      function formatNumber(value) {
+        return new Intl.NumberFormat("ko-KR").format(value);
+      }
+
+      function sumByKey(data, key) {
+        return data.reduce((sum, row) => sum + row[key], 0);
+      }
+
+      function averageByKey(data, key) {
+        return Math.round(sumByKey(data, key) / data.length);
+      }
+
+      function activeColumns() {
+        const yearColumn = columns.find((column) => column.key === "year");
+        const enabledColumns = columns.filter((column) => filters.enabledTypes.has(column.key));
+        const totalColumn = columns.find((column) => column.key === "total");
+        return [yearColumn, ...enabledColumns, totalColumn];
+      }
+
+      function buildYearOptions() {
+        const options = years.map((year) => `<option value="${year}">${year}년</option>`).join("");
+        els.startYear.innerHTML = options;
+        els.endYear.innerHTML = options;
+        els.startYear.value = String(firstYear);
+        els.endYear.value = String(lastYear);
+      }
+
+      function buildTypeFilter() {
+        els.typeFilter.innerHTML = majorTypeKeys
+          .map((key) => {
+            const label = columns.find((column) => column.key === key).label;
+            return `
+              <label>
+                <input type="checkbox" data-type="${key}" checked>
+                <span>${label}</span>
+              </label>
+            `;
+          })
+          .join("");
+
+        els.typeFilter.querySelectorAll("input").forEach((input) => {
+          input.addEventListener("change", (event) => {
+            const typeKey = event.target.dataset.type;
+            if (event.target.checked) {
+              filters.enabledTypes.add(typeKey);
+            } else if (filters.enabledTypes.size > 1) {
+              filters.enabledTypes.delete(typeKey);
+            } else {
+              event.target.checked = true;
+            }
+            render();
+          });
+        });
+      }
+
+      function syncYearControls() {
+        const startYear = Number(els.startYear.value);
+        const endYear = Number(els.endYear.value);
+
+        if (els.singleYearOnly.checked) {
+          els.endYear.value = String(startYear);
+          els.endYear.disabled = true;
+          return;
+        }
+
+        els.endYear.disabled = false;
+        if (endYear < startYear) {
+          els.endYear.value = String(startYear);
+        }
+      }
+
+      function filteredRows() {
+        syncYearControls();
+        const startYear = Number(els.startYear.value);
+        const endYear = els.singleYearOnly.checked ? startYear : Number(els.endYear.value);
+        return rows.filter((row) => row.year >= startYear && row.year <= endYear);
+      }
+
+      function renderSummary(data) {
+        els.dataPeriod.textContent = `${firstYear} - ${lastYear}`;
+        els.selectedPeriod.textContent = `${els.startYear.value} - ${els.endYear.value} 기준`;
+
+        if (!data.length) {
+          els.totalAccidents.textContent = "-";
+          els.avgAccidents.textContent = "-";
+          els.peakYear.textContent = "-";
+          els.peakYearDetail.textContent = "조건에 맞는 데이터 없음";
+          els.topType.textContent = "-";
+          els.topTypeDetail.textContent = "사고 유형을 확인해 주세요";
+          return;
+        }
+
+        const totalAccidents = sumByKey(data, "total");
+        const avgAccidents = Math.round(totalAccidents / data.length);
+        const peakRow = data.reduce((best, row) => (row.total > best.total ? row : best), data[0]);
+        const topType = [...filters.enabledTypes]
+          .map((key) => ({ key, value: sumByKey(data, key) }))
+          .sort((a, b) => b.value - a.value)[0];
+
+        els.totalAccidents.textContent = `${formatNumber(totalAccidents)}건`;
+        els.avgAccidents.textContent = `${formatNumber(avgAccidents)}건`;
+        els.peakYear.textContent = `${peakRow.year}년`;
+        els.peakYearDetail.textContent = `${formatNumber(peakRow.total)}건 발생`;
+        els.topType.textContent = labels[topType.key];
+        els.topTypeDetail.textContent = `${formatNumber(topType.value)}건 누적`;
+      }
+
+      function renderTable(data) {
+        const visibleColumns = activeColumns();
+
+        els.tableMeta.textContent = data.length
+          ? `${data[0].year}년부터 ${data[data.length - 1].year}년까지 ${data.length}개 연도 표시`
+          : "조건에 맞는 데이터가 없습니다";
+
+        els.dataTableHead.innerHTML = `
+          <tr>
+            ${visibleColumns
+              .map((column) => {
+                const className = column.key === "total" ? ' class="total-column"' : "";
+                return `<th scope="col"${className}>${column.label}</th>`;
+              })
+              .join("")}
+          </tr>
+        `;
+
+        els.dataTableBody.innerHTML = data.length
+          ? data
+              .map(
+                (row) => `
+                  <tr>
+                    ${visibleColumns
+                      .map((column) => {
+                        const className = column.key === "total" ? ' class="total-cell"' : "";
+                        const value = column.key === "year" ? `${row[column.key]}년` : formatNumber(row[column.key]);
+                        return `<td${className}>${value}</td>`;
+                      })
+                      .join("")}
+                  </tr>
+                `,
+              )
+              .join("")
+          : `<tr><td colspan="${visibleColumns.length}">조건에 맞는 데이터가 없습니다.</td></tr>`;
+
+        els.dataTableFoot.innerHTML = data.length
+          ? `
+              <tr>
+                ${visibleColumns
+                  .map((column, index) => {
+                    if (index === 0) {
+                      return "<td>평균</td>";
+                    }
+                    const className = column.key === "total" ? ' class="total-cell"' : "";
+                    return `<td${className}>${formatNumber(averageByKey(data, column.key))}</td>`;
+                  })
+                  .join("")}
+              </tr>
+              <tr>
+                ${visibleColumns
+                  .map((column, index) => {
+                    if (index === 0) {
+                      return "<td>합계</td>";
+                    }
+                    const className = column.key === "total" ? ' class="total-cell"' : "";
+                    return `<td${className}>${formatNumber(sumByKey(data, column.key))}</td>`;
+                  })
+                  .join("")}
+              </tr>
+            `
+          : "";
+      }
+
+      function renderEmptyChart(element) {
+        element.innerHTML = '<div class="empty-state">조건에 맞는 데이터가 없습니다.</div>';
+      }
+
+      function renderLineChart(data) {
+        if (!data.length) {
+          renderEmptyChart(els.lineChart);
+          return;
+        }
+
+        const width = 640;
+        const height = 248;
+        const margin = { top: 16, right: 18, bottom: 28, left: 52 };
+        const maxValue = Math.max(...data.map((row) => row.total));
+        const innerWidth = width - margin.left - margin.right;
+        const innerHeight = height - margin.top - margin.bottom;
+        const points = data.map((row, index) => {
+          const x = margin.left + (data.length === 1 ? innerWidth / 2 : (innerWidth * index) / (data.length - 1));
+          const y = margin.top + innerHeight - (row.total / maxValue) * innerHeight;
+          return { x, y, row };
+        });
+
+        const linePath = points.map((point, index) => `${index === 0 ? "M" : "L"} ${point.x} ${point.y}`).join(" ");
+        const areaPath = `${linePath} L ${points[points.length - 1].x} ${margin.top + innerHeight} L ${points[0].x} ${margin.top + innerHeight} Z`;
+
+        els.lineChart.innerHTML = `
+          <svg viewBox="0 0 ${width} ${height}" role="img" aria-label="연도별 총 사고 건수 추이">
+            ${Array.from({ length: 5 }, (_, index) => {
+              const value = Math.round((maxValue * (4 - index)) / 4);
+              const y = margin.top + (innerHeight * index) / 4;
+              return `
+                <line class="grid-line" x1="${margin.left}" y1="${y}" x2="${width - margin.right}" y2="${y}"></line>
+                <text class="axis-label" x="${margin.left - 10}" y="${y + 4}" text-anchor="end">${formatNumber(value)}</text>
+              `;
+            }).join("")}
+            <path class="line-area" d="${areaPath}"></path>
+            <path class="line-main" d="${linePath}"></path>
+            ${points
+              .map(
+                (point) => `
+                  <circle class="dot" cx="${point.x}" cy="${point.y}" r="5"></circle>
+                  <text class="chart-value" x="${point.x}" y="${point.y - 12}" text-anchor="middle">${formatNumber(point.row.total)}</text>
+                  <text class="axis-label" x="${point.x}" y="${height - 12}" text-anchor="middle">${point.row.year}</text>
+                `,
+              )
+              .join("")}
+          </svg>
+        `;
+      }
+
+      function renderBarChart(data) {
+        if (!data.length) {
+          els.barChartMeta.textContent = "-";
+          renderEmptyChart(els.barChart);
+          return;
+        }
+
+        const totals = [...filters.enabledTypes]
+          .map((key) => ({ key, label: labels[key], value: sumByKey(data, key) }))
+          .sort((a, b) => b.value - a.value);
+
+        const width = 640;
+        const height = 248;
+        const margin = { top: 20, right: 18, bottom: 42, left: 40 };
+        const innerWidth = width - margin.left - margin.right;
+        const innerHeight = height - margin.top - margin.bottom;
+        const maxValue = totals[0].value;
+        const gap = 18;
+        const barWidth = innerWidth / totals.length - gap;
+
+        els.barChartMeta.innerHTML = `<span class="meta-highlight">${totals[0].label}</span><span class="meta-text">이(가) 가장 많이 발생했습니다</span>`;
+        els.barChart.innerHTML = `
+          <svg viewBox="0 0 ${width} ${height}" role="img" aria-label="사고 유형별 합계 막대 차트">
+            <line class="grid-line" x1="${margin.left}" y1="${margin.top + innerHeight}" x2="${width - margin.right}" y2="${margin.top + innerHeight}"></line>
+            ${totals
+              .map((item, index) => {
+                const barHeight = (item.value / maxValue) * innerHeight;
+                const x = margin.left + index * (barWidth + gap) + 8;
+                const y = margin.top + innerHeight - barHeight;
+                const barClass = index === 0 ? "bar-top" : "bar-regular";
+                return `
+                  <rect class="${barClass}" x="${x}" y="${y}" width="${barWidth}" height="${barHeight}" rx="6"></rect>
+                  <text class="chart-value" x="${x + barWidth / 2}" y="${y - 10}" text-anchor="middle">${formatNumber(item.value)}</text>
+                  <text class="axis-label" x="${x + barWidth / 2}" y="${height - 16}" text-anchor="middle">${item.label}</text>
+                `;
+              })
+              .join("")}
+          </svg>
+        `;
+      }
+
+      function renderRecentChart(data) {
+        const recentRows = data.slice(-5);
+        if (!recentRows.length) {
+          els.recentMeta.textContent = "-";
+          renderEmptyChart(els.recentChart);
+          return;
+        }
+
+        els.recentMeta.textContent = `${recentRows[0].year}년부터 ${recentRows[recentRows.length - 1].year}년까지`;
+        const width = 980;
+        const height = 250;
+        const margin = { top: 18, right: 16, bottom: 42, left: 16 };
+        const innerWidth = width - margin.left - margin.right;
+        const innerHeight = height - margin.top - margin.bottom;
+        const maxValue = Math.max(...recentRows.map((row) => row.total));
+        const gap = 22;
+        const barWidth = innerWidth / recentRows.length - gap;
+
+        els.recentChart.innerHTML = `
+          <svg viewBox="0 0 ${width} ${height}" role="img" aria-label="최근 5년 사고 추이 화살표 막대 그래프">
+            <defs>
+              <linearGradient id="arrowFill" x1="0" x2="0" y1="0" y2="1">
+                <stop offset="0%" stop-color="#2b2b2d"></stop>
+                <stop offset="100%" stop-color="#111111"></stop>
+              </linearGradient>
+              <linearGradient id="arrowPeakFill" x1="0" x2="0" y1="0" y2="1">
+                <stop offset="0%" stop-color="#f08b29"></stop>
+                <stop offset="100%" stop-color="#c44f05"></stop>
+              </linearGradient>
+            </defs>
+            ${recentRows
+              .map((row, index) => {
+                const arrowHeight = Math.max(56, (row.total / maxValue) * innerHeight);
+                const x = margin.left + index * (barWidth + gap) + 8;
+                const y = margin.top + innerHeight - arrowHeight;
+                const headHeight = Math.min(30, Math.max(18, arrowHeight * 0.24));
+                const shaftTop = y + headHeight;
+                const center = x + barWidth / 2;
+                const fill = row.total === maxValue ? "url(#arrowPeakFill)" : "url(#arrowFill)";
+                const path = [
+                  `M ${center} ${y}`,
+                  `L ${x + barWidth} ${shaftTop}`,
+                  `L ${x + barWidth * 0.72} ${shaftTop}`,
+                  `L ${x + barWidth * 0.72} ${margin.top + innerHeight}`,
+                  `L ${x + barWidth * 0.28} ${margin.top + innerHeight}`,
+                  `L ${x + barWidth * 0.28} ${shaftTop}`,
+                  `L ${x} ${shaftTop}`,
+                  "Z",
+                ].join(" ");
+
+                return `
+                  <path d="${path}" fill="${fill}"></path>
+                  <text class="recent-value" x="${center}" y="${y - 8}" text-anchor="middle">${formatNumber(row.total)}</text>
+                  <text class="recent-year" x="${center}" y="${height - 14}" text-anchor="middle">${row.year}</text>
+                `;
+              })
+              .join("")}
+          </svg>
+        `;
+      }
+
+      function render() {
+        const data = filteredRows();
+        renderSummary(data);
+        renderTable(data);
+        renderLineChart(data);
+        renderBarChart(data);
+        renderRecentChart(data);
+      }
+
+      function bindEvents() {
+        els.startYear.addEventListener("change", render);
+        els.endYear.addEventListener("change", render);
+        els.singleYearOnly.addEventListener("change", render);
+        els.resetFilters.addEventListener("click", () => {
+          els.startYear.value = String(firstYear);
+          els.endYear.value = String(lastYear);
+          els.singleYearOnly.checked = false;
+          filters.enabledTypes = new Set(majorTypeKeys);
+          els.typeFilter.querySelectorAll("input").forEach((input) => {
+            input.checked = true;
+          });
+          render();
+        });
+      }
+
+      buildYearOptions();
+      buildTypeFilter();
+      bindEvents();
+      render();
+    </script>
+  </body>
+</html>
