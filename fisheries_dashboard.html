@@ -6,21 +6,21 @@
   <title>어업 생산량 현황 대시보드</title>
   <style>
     :root {
-      --bg: #baf4f2;
-      --panel: #f7fcff;
+      --bg: #d7efee;
+      --panel: #fbfdff;
       --ink: #0b0f14;
       --muted: #405160;
-      --line: #101010;
-      --lime: #9af21d;
-      --lime-soft: #d9ff91;
-      --blue: #2476d1;
-      --teal: #0faf97;
-      --amber: #e7a517;
-      --red: #d85f59;
-      --green: #43a642;
-      --purple: #8663e8;
-      --shadow: 4px 4px 0 rgba(10, 10, 10, 0.16);
-      --soft-shadow: 0 18px 45px rgba(39, 112, 119, 0.18);
+      --line: #283231;
+      --lime: #b7d96b;
+      --lime-soft: #e5f2bd;
+      --blue: #4f82ad;
+      --teal: #4d9f93;
+      --amber: #c99d3b;
+      --red: #c97b78;
+      --green: #6b9d63;
+      --purple: #8c7bc3;
+      --shadow: 3px 3px 0 rgba(18, 28, 28, 0.12);
+      --soft-shadow: 0 16px 38px rgba(63, 116, 120, 0.13);
     }
 
     * {
@@ -30,7 +30,7 @@
     body {
       margin: 0;
       background:
-        linear-gradient(180deg, #82e4eb 0%, #baf4f2 46%, #ddfbf7 100%);
+        linear-gradient(180deg, #b6e4e6 0%, #d7efee 48%, #edf7f3 100%);
       color: var(--ink);
       font-family: "Segoe UI", "Malgun Gothic", Arial, sans-serif;
       line-height: 1.5;
@@ -53,10 +53,10 @@
       left: 0;
       width: 48px;
       height: 26px;
-      opacity: 0.45;
+      opacity: 0.32;
       animation: swim-right var(--duration) linear infinite;
       animation-delay: var(--delay);
-      filter: drop-shadow(1px 2px 0 rgba(10, 10, 10, 0.12));
+      filter: drop-shadow(1px 1px 0 rgba(18, 28, 28, 0.1));
     }
 
     .bg-fish::before {
@@ -67,7 +67,7 @@
       width: 28px;
       height: 16px;
       background: var(--fish-color);
-      border: 2px solid var(--line);
+      border: 1px solid var(--line);
       border-radius: 50%;
     }
 
@@ -79,7 +79,7 @@
       width: 18px;
       height: 16px;
       background: var(--fish-color);
-      border: 2px solid var(--line);
+      border: 1px solid var(--line);
       clip-path: polygon(100% 50%, 0 0, 0 100%);
     }
 
@@ -97,15 +97,15 @@
       animation-name: swim-left;
     }
 
-    .bg-fish.f1 { --top: 12%; --duration: 22s; --delay: -4s; --fish-color: #9af21d; }
-    .bg-fish.f2 { --top: 24%; --duration: 27s; --delay: -15s; --fish-color: #ffffff; }
-    .bg-fish.f3 { --top: 36%; --duration: 20s; --delay: -9s; --fish-color: #b7e7ff; }
-    .bg-fish.f4 { --top: 48%; --duration: 30s; --delay: -19s; --fish-color: #fff1a6; }
-    .bg-fish.f5 { --top: 61%; --duration: 24s; --delay: -11s; --fish-color: #d9fbf4; }
-    .bg-fish.f6 { --top: 74%; --duration: 32s; --delay: -22s; --fish-color: #9af21d; }
-    .bg-fish.f7 { --top: 18%; --duration: 26s; --delay: -6s; --fish-color: #ffdfdc; }
-    .bg-fish.f8 { --top: 56%; --duration: 21s; --delay: -14s; --fish-color: #ffffff; }
-    .bg-fish.f9 { --top: 83%; --duration: 28s; --delay: -3s; --fish-color: #dcecff; }
+    .bg-fish.f1 { --top: 12%; --duration: 22s; --delay: -4s; --fish-color: #c5dc84; }
+    .bg-fish.f2 { --top: 24%; --duration: 27s; --delay: -15s; --fish-color: #f8fbfb; }
+    .bg-fish.f3 { --top: 36%; --duration: 20s; --delay: -9s; --fish-color: #c9e2ee; }
+    .bg-fish.f4 { --top: 48%; --duration: 30s; --delay: -19s; --fish-color: #f2e6b5; }
+    .bg-fish.f5 { --top: 61%; --duration: 24s; --delay: -11s; --fish-color: #dcefed; }
+    .bg-fish.f6 { --top: 74%; --duration: 32s; --delay: -22s; --fish-color: #c5dc84; }
+    .bg-fish.f7 { --top: 18%; --duration: 26s; --delay: -6s; --fish-color: #ecd0cf; }
+    .bg-fish.f8 { --top: 56%; --duration: 21s; --delay: -14s; --fish-color: #f8fbfb; }
+    .bg-fish.f9 { --top: 83%; --duration: 28s; --delay: -3s; --fish-color: #d4e3f0; }
 
     @keyframes swim-right {
       0% { transform: translate3d(-90px, 0, 0) scaleX(1); }
@@ -149,7 +149,7 @@
       min-height: 58px;
       padding: 8px 22px;
       background: #ffffff;
-      border: 3px solid var(--line);
+      border: 2px solid var(--line);
       border-radius: 999px;
       box-shadow: var(--shadow);
     }
@@ -166,13 +166,13 @@
       align-items: center;
       min-height: 38px;
       padding: 7px 14px;
-      border: 2px solid var(--line);
+      border: 1px solid var(--line);
       border-radius: 999px;
       color: var(--ink);
       background: var(--lime);
       font-weight: 900;
       white-space: nowrap;
-      box-shadow: 2px 2px 0 rgba(10, 10, 10, 0.2);
+      box-shadow: 2px 2px 0 rgba(18, 28, 28, 0.12);
     }
 
     main {
@@ -212,7 +212,7 @@
       gap: 18px;
       padding: 18px;
       background: var(--panel);
-      border: 3px solid var(--line);
+      border: 2px solid var(--line);
       border-radius: 8px;
       box-shadow: var(--shadow), var(--soft-shadow);
     }
@@ -262,10 +262,10 @@
       gap: 8px;
       min-height: 40px;
       padding: 8px 12px;
-      border: 2px solid var(--line);
+      border: 1px solid var(--line);
       border-radius: 6px;
       background: #ffffff;
-      box-shadow: 2px 2px 0 rgba(10, 10, 10, 0.12);
+      box-shadow: 2px 2px 0 rgba(18, 28, 28, 0.09);
       cursor: pointer;
       user-select: none;
       white-space: nowrap;
@@ -290,12 +290,12 @@
       width: 100%;
       min-height: 40px;
       padding: 7px 10px;
-      border: 2px solid var(--line);
+      border: 1px solid var(--line);
       border-radius: 6px;
       background: #ffffff;
       color: var(--ink);
       font-weight: 900;
-      box-shadow: 2px 2px 0 rgba(10, 10, 10, 0.12);
+      box-shadow: 2px 2px 0 rgba(18, 28, 28, 0.09);
     }
 
     select:disabled {
@@ -322,30 +322,30 @@
       gap: 8px;
       min-height: 46px;
       padding: 8px 13px 8px 10px;
-      border: 2px solid var(--line);
+      border: 1px solid var(--line);
       border-radius: 6px;
       background: #ffffff;
       color: var(--ink);
       cursor: pointer;
       user-select: none;
-      box-shadow: 3px 3px 0 rgba(10, 10, 10, 0.12);
+      box-shadow: 2px 2px 0 rgba(18, 28, 28, 0.09);
       transition: background-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
     }
 
     .category-filter label:hover {
       transform: translate(-1px, -1px);
-      box-shadow: 4px 4px 0 rgba(10, 10, 10, 0.16);
+      box-shadow: 3px 3px 0 rgba(18, 28, 28, 0.12);
     }
 
     .category-filter label:focus-within {
-      outline: 3px solid var(--lime);
+      outline: 2px solid var(--lime);
       outline-offset: 2px;
     }
 
     .category-filter label.is-selected {
       background: var(--category-bg);
       border-color: var(--category-color);
-      box-shadow: inset 0 0 0 999px rgba(154, 242, 29, 0.18), 3px 3px 0 rgba(10, 10, 10, 0.18);
+      box-shadow: inset 0 0 0 999px rgba(183, 217, 107, 0.16), 2px 2px 0 rgba(18, 28, 28, 0.11);
     }
 
     .category-icon {
@@ -381,8 +381,8 @@
     .summary-card {
       padding: 16px;
       background: var(--panel);
-      border: 3px solid var(--line);
-      border-top: 10px solid var(--blue);
+      border: 2px solid var(--line);
+      border-top: 7px solid var(--blue);
       border-radius: 8px;
       box-shadow: var(--shadow);
     }
@@ -422,7 +422,7 @@
     .data-wrap {
       overflow: auto;
       background: var(--panel);
-      border: 3px solid var(--line);
+      border: 2px solid var(--line);
       border-radius: 8px;
       box-shadow: var(--shadow);
     }
@@ -458,12 +458,12 @@
     }
 
     tbody tr.highlight {
-      background: #ffedbd;
+      background: #f2e6c7;
     }
 
     tbody tr.highlight td {
-      background: #ffedbd;
-      box-shadow: inset 0 1px 0 #e4aa1d, inset 0 -1px 0 #e4aa1d;
+      background: #f2e6c7;
+      box-shadow: inset 0 1px 0 #c8a75b, inset 0 -1px 0 #c8a75b;
     }
 
     tbody tr.highlight td:first-child {
@@ -483,13 +483,13 @@
     .sort-button {
       min-width: 76px;
       min-height: 32px;
-      border: 2px solid var(--line);
+      border: 1px solid var(--line);
       border-radius: 6px;
       background: #ffffff;
       color: var(--ink);
       font-weight: 900;
       cursor: pointer;
-      box-shadow: 2px 2px 0 rgba(10, 10, 10, 0.12);
+      box-shadow: 2px 2px 0 rgba(18, 28, 28, 0.09);
     }
 
     .chart-grid {
@@ -502,7 +502,7 @@
       min-width: 0;
       padding: 16px;
       background: var(--panel);
-      border: 3px solid var(--line);
+      border: 2px solid var(--line);
       border-radius: 8px;
       box-shadow: var(--shadow);
     }
@@ -511,7 +511,7 @@
       margin: -16px -16px 14px;
       padding: 12px 14px;
       background: var(--lime);
-      border-bottom: 3px solid var(--line);
+      border-bottom: 2px solid var(--line);
       border-radius: 5px 5px 0 0;
       font-size: 17px;
       letter-spacing: 0;
@@ -549,7 +549,7 @@
     .empty-note {
       display: none;
       padding: 18px;
-      border: 3px dashed var(--line);
+      border: 2px dashed var(--line);
       border-radius: 8px;
       background: #ffffff;
       color: var(--ink);
@@ -705,8 +705,8 @@
           <h3>연도별 총 생산량 추이</h3>
           <canvas id="lineChart" aria-label="연도별 총 생산량 선 그래프"></canvas>
           <div class="legend">
-            <span class="legend-item"><span class="swatch" style="background:#1f5f99"></span>계</span>
-            <span class="legend-item"><span class="swatch" style="background:#d48806"></span>최고 생산 연도</span>
+            <span class="legend-item"><span class="swatch" style="background:#4f82ad"></span>계</span>
+            <span class="legend-item"><span class="swatch" style="background:#c99d3b"></span>최고 생산 연도</span>
           </div>
         </article>
         <article class="chart-panel">
@@ -745,12 +745,12 @@
     };
 
     const categories = [
-      { key: "fish", label: "어류", color: "#1f5f99", bg: "#dcecff", icon: categoryIcons.fish },
-      { key: "shellfish", label: "패류", color: "#118c7e", bg: "#d9fbf4", icon: categoryIcons.shellfish },
-      { key: "crustacean", label: "갑각류", color: "#d48806", bg: "#fff1cb", icon: categoryIcons.crustacean },
-      { key: "mollusk", label: "연체동물", color: "#c2413b", bg: "#ffe1df", icon: categoryIcons.mollusk },
-      { key: "other", label: "기타수산동물", color: "#6f4aa2", bg: "#ebe3ff", icon: categoryIcons.other },
-      { key: "seaweed", label: "해조류", color: "#2f7d32", bg: "#ddf8d8", icon: categoryIcons.seaweed }
+      { key: "fish", label: "어류", color: "#4f82ad", bg: "#e5eef6", icon: categoryIcons.fish },
+      { key: "shellfish", label: "패류", color: "#4d9f93", bg: "#e4f3f0", icon: categoryIcons.shellfish },
+      { key: "crustacean", label: "갑각류", color: "#c99d3b", bg: "#f3ead1", icon: categoryIcons.crustacean },
+      { key: "mollusk", label: "연체동물", color: "#c97b78", bg: "#f3e2e1", icon: categoryIcons.mollusk },
+      { key: "other", label: "기타수산동물", color: "#8c7bc3", bg: "#ebe8f4", icon: categoryIcons.other },
+      { key: "seaweed", label: "해조류", color: "#6b9d63", bg: "#e5f0df", icon: categoryIcons.seaweed }
     ];
 
     const state = {
@@ -1028,7 +1028,7 @@
         if (showLabel) ctx.fillText(row.year, xScale(index), plot.bottom + 12);
       });
 
-      ctx.strokeStyle = "#1f5f99";
+      ctx.strokeStyle = "#4f82ad";
       ctx.lineWidth = 3;
       ctx.beginPath();
       filteredRows.forEach((row, index) => {
@@ -1044,8 +1044,8 @@
         const y = yScale(row.total);
         const isTopYear = row.year === 2008;
 
-        ctx.fillStyle = isTopYear ? "#d48806" : "#ffffff";
-        ctx.strokeStyle = isTopYear ? "#d48806" : "#1f5f99";
+        ctx.fillStyle = isTopYear ? "#c99d3b" : "#ffffff";
+        ctx.strokeStyle = isTopYear ? "#c99d3b" : "#4f82ad";
         ctx.lineWidth = isTopYear ? 4 : 2;
         ctx.beginPath();
         ctx.arc(x, y, isTopYear ? 6 : 4, 0, Math.PI * 2);
