@@ -1,0 +1,1150 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>어업 생산량 현황 대시보드</title>
+  <style>
+    :root {
+      --bg: #baf4f2;
+      --panel: #f7fcff;
+      --ink: #0b0f14;
+      --muted: #405160;
+      --line: #101010;
+      --lime: #9af21d;
+      --lime-soft: #d9ff91;
+      --blue: #2476d1;
+      --teal: #0faf97;
+      --amber: #e7a517;
+      --red: #d85f59;
+      --green: #43a642;
+      --purple: #8663e8;
+      --shadow: 4px 4px 0 rgba(10, 10, 10, 0.16);
+      --soft-shadow: 0 18px 45px rgba(39, 112, 119, 0.18);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background:
+        linear-gradient(180deg, #82e4eb 0%, #baf4f2 46%, #ddfbf7 100%);
+      color: var(--ink);
+      font-family: "Segoe UI", "Malgun Gothic", Arial, sans-serif;
+      line-height: 1.5;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .fish-background {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      overflow: hidden;
+      pointer-events: none;
+    }
+
+    .bg-fish {
+      --fish-color: var(--lime);
+      position: absolute;
+      top: var(--top);
+      left: 0;
+      width: 48px;
+      height: 26px;
+      opacity: 0.45;
+      animation: swim-right var(--duration) linear infinite;
+      animation-delay: var(--delay);
+      filter: drop-shadow(1px 2px 0 rgba(10, 10, 10, 0.12));
+    }
+
+    .bg-fish::before {
+      content: "";
+      position: absolute;
+      left: 13px;
+      top: 5px;
+      width: 28px;
+      height: 16px;
+      background: var(--fish-color);
+      border: 2px solid var(--line);
+      border-radius: 50%;
+    }
+
+    .bg-fish::after {
+      content: "";
+      position: absolute;
+      left: 2px;
+      top: 6px;
+      width: 18px;
+      height: 16px;
+      background: var(--fish-color);
+      border: 2px solid var(--line);
+      clip-path: polygon(100% 50%, 0 0, 0 100%);
+    }
+
+    .bg-fish i {
+      position: absolute;
+      left: 33px;
+      top: 11px;
+      width: 4px;
+      height: 4px;
+      background: var(--line);
+      border-radius: 50%;
+    }
+
+    .bg-fish.reverse {
+      animation-name: swim-left;
+    }
+
+    .bg-fish.f1 { --top: 12%; --duration: 22s; --delay: -4s; --fish-color: #9af21d; }
+    .bg-fish.f2 { --top: 24%; --duration: 27s; --delay: -15s; --fish-color: #ffffff; }
+    .bg-fish.f3 { --top: 36%; --duration: 20s; --delay: -9s; --fish-color: #b7e7ff; }
+    .bg-fish.f4 { --top: 48%; --duration: 30s; --delay: -19s; --fish-color: #fff1a6; }
+    .bg-fish.f5 { --top: 61%; --duration: 24s; --delay: -11s; --fish-color: #d9fbf4; }
+    .bg-fish.f6 { --top: 74%; --duration: 32s; --delay: -22s; --fish-color: #9af21d; }
+    .bg-fish.f7 { --top: 18%; --duration: 26s; --delay: -6s; --fish-color: #ffdfdc; }
+    .bg-fish.f8 { --top: 56%; --duration: 21s; --delay: -14s; --fish-color: #ffffff; }
+    .bg-fish.f9 { --top: 83%; --duration: 28s; --delay: -3s; --fish-color: #dcecff; }
+
+    @keyframes swim-right {
+      0% { transform: translate3d(-90px, 0, 0) scaleX(1); }
+      25% { transform: translate3d(25vw, 10px, 0) scaleX(1); }
+      50% { transform: translate3d(50vw, -6px, 0) scaleX(1); }
+      75% { transform: translate3d(75vw, 8px, 0) scaleX(1); }
+      100% { transform: translate3d(calc(100vw + 90px), 0, 0) scaleX(1); }
+    }
+
+    @keyframes swim-left {
+      0% { transform: translate3d(calc(100vw + 90px), 0, 0) scaleX(-1); }
+      25% { transform: translate3d(75vw, -9px, 0) scaleX(-1); }
+      50% { transform: translate3d(50vw, 7px, 0) scaleX(-1); }
+      75% { transform: translate3d(25vw, -5px, 0) scaleX(-1); }
+      100% { transform: translate3d(-90px, 0, 0) scaleX(-1); }
+    }
+
+    .page-header,
+    main {
+      position: relative;
+      z-index: 1;
+    }
+
+    .page-header {
+      padding: 14px 0 0;
+      background: transparent;
+      border-bottom: 0;
+    }
+
+    .header-inner,
+    main {
+      width: min(1180px, calc(100% - 32px));
+      margin: 0 auto;
+    }
+
+    .header-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      min-height: 58px;
+      padding: 8px 22px;
+      background: #ffffff;
+      border: 3px solid var(--line);
+      border-radius: 999px;
+      box-shadow: var(--shadow);
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(24px, 3vw, 34px);
+      letter-spacing: 0;
+      font-weight: 900;
+    }
+
+    .period {
+      display: inline-flex;
+      align-items: center;
+      min-height: 38px;
+      padding: 7px 14px;
+      border: 2px solid var(--line);
+      border-radius: 999px;
+      color: var(--ink);
+      background: var(--lime);
+      font-weight: 900;
+      white-space: nowrap;
+      box-shadow: 2px 2px 0 rgba(10, 10, 10, 0.2);
+    }
+
+    main {
+      padding: 26px 0 42px;
+    }
+
+    section {
+      margin-top: 24px;
+    }
+
+    .section-title {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 12px;
+    }
+
+    h2 {
+      margin: 0;
+      font-size: 20px;
+      letter-spacing: 0;
+      font-weight: 900;
+    }
+
+    .unit {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .controls {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 18px;
+      padding: 18px;
+      background: var(--panel);
+      border: 3px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow), var(--soft-shadow);
+    }
+
+    .control-group {
+      min-width: 0;
+    }
+
+    .control-title {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--ink);
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .year-controls {
+      display: flex;
+      align-items: end;
+      justify-content: flex-start;
+      gap: 6px;
+      width: fit-content;
+      max-width: 100%;
+      flex-wrap: wrap;
+    }
+
+    .year-field {
+      display: grid;
+      gap: 6px;
+      width: 128px;
+    }
+
+    .range-separator {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 40px;
+      color: var(--ink);
+      font-size: 22px;
+      font-weight: 900;
+      padding: 0 2px;
+    }
+
+    .single-year-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 40px;
+      padding: 8px 12px;
+      border: 2px solid var(--line);
+      border-radius: 6px;
+      background: #ffffff;
+      box-shadow: 2px 2px 0 rgba(10, 10, 10, 0.12);
+      cursor: pointer;
+      user-select: none;
+      white-space: nowrap;
+    }
+
+    .single-year-toggle input {
+      width: 16px;
+      height: 16px;
+      accent-color: var(--teal);
+    }
+
+    label {
+      font-weight: 700;
+    }
+
+    select,
+    button {
+      font: inherit;
+    }
+
+    select {
+      width: 100%;
+      min-height: 40px;
+      padding: 7px 10px;
+      border: 2px solid var(--line);
+      border-radius: 6px;
+      background: #ffffff;
+      color: var(--ink);
+      font-weight: 900;
+      box-shadow: 2px 2px 0 rgba(10, 10, 10, 0.12);
+    }
+
+    select:disabled {
+      background: #eef2f6;
+      color: #8a96a6;
+      cursor: not-allowed;
+    }
+
+    .year-field.is-disabled {
+      color: #8a96a6;
+    }
+
+    .category-filter {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .category-filter label {
+      --category-color: var(--lime);
+      --category-bg: #ffffff;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 46px;
+      padding: 8px 13px 8px 10px;
+      border: 2px solid var(--line);
+      border-radius: 6px;
+      background: #ffffff;
+      color: var(--ink);
+      cursor: pointer;
+      user-select: none;
+      box-shadow: 3px 3px 0 rgba(10, 10, 10, 0.12);
+      transition: background-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
+    }
+
+    .category-filter label:hover {
+      transform: translate(-1px, -1px);
+      box-shadow: 4px 4px 0 rgba(10, 10, 10, 0.16);
+    }
+
+    .category-filter label:focus-within {
+      outline: 3px solid var(--lime);
+      outline-offset: 2px;
+    }
+
+    .category-filter label.is-selected {
+      background: var(--category-bg);
+      border-color: var(--category-color);
+      box-shadow: inset 0 0 0 999px rgba(154, 242, 29, 0.18), 3px 3px 0 rgba(10, 10, 10, 0.18);
+    }
+
+    .category-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 26px;
+      height: 26px;
+      color: var(--blue);
+      flex: 0 0 26px;
+    }
+
+    .category-icon svg {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    .category-filter input {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .summary-card {
+      padding: 16px;
+      background: var(--panel);
+      border: 3px solid var(--line);
+      border-top: 10px solid var(--blue);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+    }
+
+    .summary-card:nth-child(2) {
+      border-top-color: var(--teal);
+    }
+
+    .summary-card:nth-child(3) {
+      border-top-color: var(--lime);
+    }
+
+    .summary-card:nth-child(4) {
+      border-top-color: var(--red);
+    }
+
+    .card-label {
+      margin: 0 0 8px;
+      color: var(--ink);
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .card-value {
+      margin: 0;
+      font-size: clamp(22px, 3vw, 30px);
+      font-weight: 900;
+      letter-spacing: 0;
+    }
+
+    .card-sub {
+      margin: 5px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .data-wrap {
+      overflow: auto;
+      background: var(--panel);
+      border: 3px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+    }
+
+    table {
+      width: 100%;
+      min-width: 760px;
+      border-collapse: collapse;
+    }
+
+    th,
+    td {
+      padding: 8px 10px;
+      border-bottom: 1px solid var(--line);
+      text-align: right;
+      line-height: 1.32;
+      white-space: nowrap;
+    }
+
+    th {
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      background: var(--lime);
+      color: var(--ink);
+      font-size: 13px;
+    }
+
+    th:first-child,
+    td:first-child {
+      text-align: center;
+      font-weight: 800;
+    }
+
+    tbody tr.highlight {
+      background: #ffedbd;
+    }
+
+    tbody tr.highlight td {
+      background: #ffedbd;
+      box-shadow: inset 0 1px 0 #e4aa1d, inset 0 -1px 0 #e4aa1d;
+    }
+
+    tbody tr.highlight td:first-child {
+      border-left: 5px solid var(--amber);
+    }
+
+    tfoot {
+      background: #effff3;
+      font-weight: 900;
+    }
+
+    tfoot td {
+      border-bottom: 0;
+      border-top: 2px solid #bcc7d4;
+    }
+
+    .sort-button {
+      min-width: 76px;
+      min-height: 32px;
+      border: 2px solid var(--line);
+      border-radius: 6px;
+      background: #ffffff;
+      color: var(--ink);
+      font-weight: 900;
+      cursor: pointer;
+      box-shadow: 2px 2px 0 rgba(10, 10, 10, 0.12);
+    }
+
+    .chart-grid {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 16px;
+    }
+
+    .chart-panel {
+      min-width: 0;
+      padding: 16px;
+      background: var(--panel);
+      border: 3px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+    }
+
+    .chart-panel h3 {
+      margin: -16px -16px 14px;
+      padding: 12px 14px;
+      background: var(--lime);
+      border-bottom: 3px solid var(--line);
+      border-radius: 5px 5px 0 0;
+      font-size: 17px;
+      letter-spacing: 0;
+      font-weight: 900;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 320px;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px 14px;
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .swatch {
+      width: 12px;
+      height: 12px;
+      border-radius: 3px;
+    }
+
+    .empty-note {
+      display: none;
+      padding: 18px;
+      border: 3px dashed var(--line);
+      border-radius: 8px;
+      background: #ffffff;
+      color: var(--ink);
+      font-weight: 900;
+      text-align: center;
+    }
+
+    @media (max-width: 920px) {
+      .header-inner {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .controls,
+      .chart-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .summary-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 560px) {
+      .header-inner,
+      main {
+        width: min(100% - 20px, 1180px);
+      }
+
+      .summary-grid,
+      .year-controls {
+        grid-template-columns: 1fr;
+      }
+
+      .range-separator {
+        min-height: 20px;
+      }
+
+      .section-title {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      canvas {
+        height: 280px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .bg-fish {
+        animation: none;
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="fish-background" aria-hidden="true">
+    <span class="bg-fish f1"><i></i></span>
+    <span class="bg-fish f2 reverse"><i></i></span>
+    <span class="bg-fish f3"><i></i></span>
+    <span class="bg-fish f4 reverse"><i></i></span>
+    <span class="bg-fish f5"><i></i></span>
+    <span class="bg-fish f6 reverse"><i></i></span>
+    <span class="bg-fish f7"><i></i></span>
+    <span class="bg-fish f8 reverse"><i></i></span>
+    <span class="bg-fish f9"><i></i></span>
+  </div>
+  <header class="page-header">
+    <div class="header-inner">
+      <h1>어업 생산량 현황 대시보드</h1>
+      <div class="period">데이터 기간: 2001~2013년</div>
+    </div>
+  </header>
+
+  <main>
+    <section aria-labelledby="filter-title">
+      <div class="section-title">
+        <h2 id="filter-title">검색·필터</h2>
+      </div>
+      <div class="controls">
+        <div class="control-group">
+          <span class="control-title">연도 범위</span>
+          <div class="year-controls">
+            <label class="year-field">
+              시작 연도
+              <select id="startYear"></select>
+            </label>
+            <span class="range-separator" aria-hidden="true">~</span>
+            <label class="year-field" id="endYearField">
+              종료 연도
+              <select id="endYear"></select>
+            </label>
+            <label class="single-year-toggle">
+              <input type="checkbox" id="singleYear">
+              단일연도 검색
+            </label>
+          </div>
+        </div>
+        <div class="control-group">
+          <span class="control-title">품종 선택</span>
+          <div class="category-filter" id="categoryFilter"></div>
+        </div>
+      </div>
+    </section>
+
+    <section aria-labelledby="summary-title">
+      <div class="section-title">
+        <h2 id="summary-title">요약 카드</h2>
+      </div>
+      <div class="summary-grid">
+        <article class="summary-card">
+          <p class="card-label">총 생산량</p>
+          <p class="card-value" id="totalProduction">0</p>
+          <p class="card-sub" id="totalRangeText">-</p>
+        </article>
+        <article class="summary-card">
+          <p class="card-label">연평균 생산량</p>
+          <p class="card-value" id="averageProduction">0</p>
+          <p class="card-sub" id="yearCountText">-</p>
+        </article>
+        <article class="summary-card">
+          <p class="card-label">최고 생산 연도</p>
+          <p class="card-value" id="topYear">-</p>
+          <p class="card-sub" id="topYearValue">-</p>
+        </article>
+        <article class="summary-card">
+          <p class="card-label">선택 품종 합계</p>
+          <p class="card-value" id="selectedCategoryTotal">0</p>
+          <p class="card-sub" id="selectedCategoryText">-</p>
+        </article>
+      </div>
+    </section>
+
+    <section aria-labelledby="table-title">
+      <div class="section-title">
+        <h2 id="table-title">데이터 표</h2>
+        <p class="unit">단위: 천M/T</p>
+      </div>
+      <div class="data-wrap">
+        <table>
+          <thead id="tableHead"></thead>
+          <tbody id="tableBody"></tbody>
+          <tfoot id="tableFoot"></tfoot>
+        </table>
+      </div>
+    </section>
+
+    <section aria-label="생산량 그래프">
+      <div class="empty-note" id="emptyNote">선택된 조건에 해당하는 데이터가 없습니다.</div>
+      <div class="chart-grid" id="chartGrid">
+        <article class="chart-panel">
+          <h3>연도별 총 생산량 추이</h3>
+          <canvas id="lineChart" aria-label="연도별 총 생산량 선 그래프"></canvas>
+          <div class="legend">
+            <span class="legend-item"><span class="swatch" style="background:#1f5f99"></span>계</span>
+            <span class="legend-item"><span class="swatch" style="background:#d48806"></span>최고 생산 연도</span>
+          </div>
+        </article>
+        <article class="chart-panel">
+          <h3>품종별 생산량 합계</h3>
+          <canvas id="barChart" aria-label="품종별 생산량 합계 막대 차트"></canvas>
+          <div class="legend" id="barLegend"></div>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const rows = [
+      { year: 2001, total: 2665, fish: 1467, shellfish: 283, crustacean: 74, mollusk: 413, other: 39, seaweed: 388 },
+      { year: 2002, total: 2476, fish: 1202, shellfish: 272, crustacean: 72, mollusk: 394, other: 27, seaweed: 508 },
+      { year: 2003, total: 2487, fish: 1144, shellfish: 403, crustacean: 89, mollusk: 379, other: 15, seaweed: 457 },
+      { year: 2004, total: 2519, fish: 1157, shellfish: 410, crustacean: 85, mollusk: 306, other: 15, seaweed: 546 },
+      { year: 2005, total: 2714, fish: 1265, shellfish: 409, crustacean: 92, mollusk: 295, other: 16, seaweed: 636 },
+      { year: 2006, total: 3032, fish: 1261, shellfish: 474, crustacean: 110, mollusk: 392, other: 17, seaweed: 778 },
+      { year: 2007, total: 3275, fish: 1330, shellfish: 555, crustacean: 124, mollusk: 432, other: 23, seaweed: 811 },
+      { year: 2008, total: 3361, fish: 1448, shellfish: 428, crustacean: 126, mollusk: 402, other: 23, seaweed: 935 },
+      { year: 2009, total: 3182, fish: 1425, shellfish: 420, crustacean: 132, mollusk: 312, other: 24, seaweed: 870 },
+      { year: 2010, total: 3111, fish: 1331, shellfish: 440, crustacean: 147, mollusk: 256, other: 22, seaweed: 915 },
+      { year: 2011, total: 3256, fish: 1356, shellfish: 467, crustacean: 130, mollusk: 269, other: 28, seaweed: 1007 },
+      { year: 2012, total: 3183, fish: 1268, shellfish: 433, crustacean: 135, mollusk: 293, other: 23, seaweed: 1032 },
+      { year: 2013, total: 3135, fish: 1195, shellfish: 346, crustacean: 149, mollusk: 282, other: 23, seaweed: 1140 }
+    ];
+
+    const categoryIcons = {
+      fish: '<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M4 16c4-6 11-8 18-3l5-4v14l-5-4c-7 5-14 3-18-3z" fill="currentColor"></path><circle cx="12" cy="15" r="1.5" fill="#fff"></circle></svg>',
+      shellfish: '<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M6 22c1-8 5-13 10-13s9 5 10 13H6z" fill="currentColor"></path><path d="M16 9v13M10 13l6 9M22 13l-6 9M7 22h18" stroke="#fff" stroke-width="1.7" fill="none" stroke-linecap="round"></path></svg>',
+      crustacean: '<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M10 15c1-4 11-4 12 0v5c0 5-12 5-12 0v-5z" fill="currentColor"></path><path d="M8 17H4m20 0h4M11 23l-3 4m13-4 3 4M11 13 7 9m14 4 4-4" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"></path><circle cx="14" cy="15" r="1.2" fill="#fff"></circle><circle cx="18" cy="15" r="1.2" fill="#fff"></circle></svg>',
+      mollusk: '<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 5c-5 4-7 8-6 13h12c1-5-1-9-6-13z" fill="currentColor"></path><path d="M11 20v6m4-6v7m6-7v6M10 18h12" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"></path><circle cx="14" cy="14" r="1.2" fill="#fff"></circle><circle cx="18" cy="14" r="1.2" fill="#fff"></circle></svg>',
+      other: '<svg viewBox="0 0 32 32" aria-hidden="true"><path d="m16 4 3.2 7 7.8.8-5.8 5.1 1.7 7.6-6.9-4-6.9 4 1.7-7.6L5 11.8l7.8-.8L16 4z" fill="currentColor"></path></svg>',
+      seaweed: '<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M9 27c5-5 3-13 7-22 4 9 2 17 7 22" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round"></path><path d="M16 13c-4 0-7-2-9-5m9 9c4 0 7-2 9-5m-9 9c-3 0-6 1-8 4m8-1c4 0 7 1 9 4" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"></path></svg>'
+    };
+
+    const categories = [
+      { key: "fish", label: "어류", color: "#1f5f99", bg: "#dcecff", icon: categoryIcons.fish },
+      { key: "shellfish", label: "패류", color: "#118c7e", bg: "#d9fbf4", icon: categoryIcons.shellfish },
+      { key: "crustacean", label: "갑각류", color: "#d48806", bg: "#fff1cb", icon: categoryIcons.crustacean },
+      { key: "mollusk", label: "연체동물", color: "#c2413b", bg: "#ffe1df", icon: categoryIcons.mollusk },
+      { key: "other", label: "기타수산동물", color: "#6f4aa2", bg: "#ebe3ff", icon: categoryIcons.other },
+      { key: "seaweed", label: "해조류", color: "#2f7d32", bg: "#ddf8d8", icon: categoryIcons.seaweed }
+    ];
+
+    const state = {
+      startYear: 2001,
+      endYear: 2013,
+      singleYear: false,
+      sortAsc: true,
+      selectedCategories: new Set(categories.map((category) => category.key))
+    };
+
+    const formatNumber = (value) => value.toLocaleString("ko-KR");
+    const sum = (items, key) => items.reduce((total, item) => total + item[key], 0);
+    const getAxisMax = (value) => Math.max(500, Math.ceil((value * 1.1) / 500) * 500);
+
+    const startYear = document.querySelector("#startYear");
+    const endYear = document.querySelector("#endYear");
+    const endYearField = document.querySelector("#endYearField");
+    const singleYear = document.querySelector("#singleYear");
+    const categoryFilter = document.querySelector("#categoryFilter");
+    const tableHead = document.querySelector("#tableHead");
+    const tableBody = document.querySelector("#tableBody");
+    const tableFoot = document.querySelector("#tableFoot");
+    const lineCanvas = document.querySelector("#lineChart");
+    const barCanvas = document.querySelector("#barChart");
+    const emptyNote = document.querySelector("#emptyNote");
+    const chartGrid = document.querySelector("#chartGrid");
+    const barLegend = document.querySelector("#barLegend");
+
+    function syncSingleYearMode() {
+      if (state.singleYear) {
+        state.endYear = state.startYear;
+        endYear.value = String(state.startYear);
+      }
+
+      endYear.disabled = state.singleYear;
+      endYearField.classList.toggle("is-disabled", state.singleYear);
+    }
+
+    function updateCategoryTiles() {
+      categoryFilter.querySelectorAll("label").forEach((label) => {
+        const input = label.querySelector("input");
+        const selected = input.checked;
+        label.classList.toggle("is-selected", selected);
+        label.setAttribute("aria-checked", String(selected));
+      });
+    }
+
+    function initFilters() {
+      const years = rows.map((row) => row.year);
+
+      years.forEach((year) => {
+        const startOption = new Option(year, year);
+        const endOption = new Option(year, year);
+        startYear.add(startOption);
+        endYear.add(endOption);
+      });
+
+      startYear.value = String(state.startYear);
+      endYear.value = String(state.endYear);
+
+      categories.forEach((category) => {
+        const label = document.createElement("label");
+        label.dataset.key = category.key;
+        label.style.setProperty("--category-color", category.color);
+        label.style.setProperty("--category-bg", category.bg);
+        label.setAttribute("role", "checkbox");
+        const input = document.createElement("input");
+        input.type = "checkbox";
+        input.value = category.key;
+        input.checked = true;
+        const icon = document.createElement("span");
+        icon.className = "category-icon";
+        icon.style.color = category.color;
+        icon.innerHTML = category.icon;
+        const labelText = document.createElement("span");
+        labelText.textContent = category.label;
+        label.append(input, icon, labelText);
+        categoryFilter.append(label);
+      });
+
+      syncSingleYearMode();
+      updateCategoryTiles();
+
+      startYear.addEventListener("change", () => {
+        state.startYear = Number(startYear.value);
+        if (state.singleYear) {
+          state.endYear = state.startYear;
+          endYear.value = startYear.value;
+        } else if (state.startYear > state.endYear) {
+          state.endYear = state.startYear;
+          endYear.value = startYear.value;
+        }
+        syncSingleYearMode();
+        render();
+      });
+
+      endYear.addEventListener("change", () => {
+        state.endYear = Number(endYear.value);
+        if (state.endYear < state.startYear) {
+          state.startYear = state.endYear;
+          startYear.value = endYear.value;
+        }
+        render();
+      });
+
+      singleYear.addEventListener("change", () => {
+        state.singleYear = singleYear.checked;
+        syncSingleYearMode();
+        render();
+      });
+
+      categoryFilter.addEventListener("change", (event) => {
+        if (event.target.type !== "checkbox") return;
+
+        if (event.target.checked) {
+          state.selectedCategories.add(event.target.value);
+        } else {
+          state.selectedCategories.delete(event.target.value);
+        }
+
+        if (state.selectedCategories.size === 0) {
+          state.selectedCategories.add(event.target.value);
+          event.target.checked = true;
+        }
+
+        updateCategoryTiles();
+        render();
+      });
+    }
+
+    function getFilteredRows() {
+      return rows
+        .filter((row) => row.year >= state.startYear && row.year <= state.endYear)
+        .sort((a, b) => state.sortAsc ? a.year - b.year : b.year - a.year);
+    }
+
+    function getSelectedCategories() {
+      return categories.filter((category) => state.selectedCategories.has(category.key));
+    }
+
+    function renderSummary(filteredRows, selectedCategories) {
+      const totalProduction = sum(filteredRows, "total");
+      const average = filteredRows.length ? Math.round(totalProduction / filteredRows.length) : 0;
+      const top = filteredRows.reduce((best, row) => row.total > best.total ? row : best, filteredRows[0]);
+      const selectedTotal = selectedCategories.reduce((total, category) => total + sum(filteredRows, category.key), 0);
+
+      document.querySelector("#totalProduction").textContent = formatNumber(totalProduction);
+      document.querySelector("#averageProduction").textContent = formatNumber(average);
+      document.querySelector("#topYear").textContent = top ? String(top.year) : "-";
+      document.querySelector("#topYearValue").textContent = top ? `${formatNumber(top.total)} 천M/T` : "-";
+      document.querySelector("#selectedCategoryTotal").textContent = formatNumber(selectedTotal);
+      document.querySelector("#selectedCategoryText").textContent = selectedCategories.map((category) => category.label).join(", ");
+      document.querySelector("#totalRangeText").textContent = `${state.startYear}~${state.endYear}년`;
+      document.querySelector("#yearCountText").textContent = `${filteredRows.length}개 연도`;
+    }
+
+    function renderTable(filteredRows, selectedCategories) {
+      const columns = [
+        { key: "year", label: "연도" },
+        { key: "total", label: "계" },
+        ...selectedCategories
+      ];
+
+      tableHead.innerHTML = "";
+      tableBody.innerHTML = "";
+      tableFoot.innerHTML = "";
+
+      const headRow = document.createElement("tr");
+      columns.forEach((column) => {
+        const th = document.createElement("th");
+        if (column.key === "year") {
+          const button = document.createElement("button");
+          button.className = "sort-button";
+          button.type = "button";
+          button.textContent = state.sortAsc ? "연도 ▲" : "연도 ▼";
+          button.setAttribute("aria-label", "연도 기준 정렬 전환");
+          button.addEventListener("click", () => {
+            state.sortAsc = !state.sortAsc;
+            render();
+          });
+          th.append(button);
+        } else {
+          th.textContent = column.label;
+        }
+        headRow.append(th);
+      });
+      tableHead.append(headRow);
+
+      filteredRows.forEach((row) => {
+        const tr = document.createElement("tr");
+        if (row.year === 2008) tr.className = "highlight";
+
+        columns.forEach((column) => {
+          const td = document.createElement("td");
+          td.textContent = column.key === "year" ? row.year : formatNumber(row[column.key]);
+          tr.append(td);
+        });
+
+        tableBody.append(tr);
+      });
+
+      const footRow = document.createElement("tr");
+      columns.forEach((column) => {
+        const td = document.createElement("td");
+        if (column.key === "year") {
+          td.textContent = "합계";
+        } else {
+          td.textContent = formatNumber(sum(filteredRows, column.key));
+        }
+        footRow.append(td);
+      });
+      tableFoot.append(footRow);
+    }
+
+    function setupCanvas(canvas) {
+      const rect = canvas.getBoundingClientRect();
+      const scale = window.devicePixelRatio || 1;
+      canvas.width = Math.max(1, Math.floor(rect.width * scale));
+      canvas.height = Math.max(1, Math.floor(rect.height * scale));
+      const ctx = canvas.getContext("2d");
+      ctx.setTransform(scale, 0, 0, scale, 0, 0);
+      return { ctx, width: rect.width, height: rect.height };
+    }
+
+    function drawAxes(ctx, plot, yTicks, labelFormatter) {
+      ctx.strokeStyle = "#cbd5e1";
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(plot.left, plot.top);
+      ctx.lineTo(plot.left, plot.bottom);
+      ctx.lineTo(plot.right, plot.bottom);
+      ctx.stroke();
+
+      ctx.fillStyle = "#64748b";
+      ctx.font = "12px Segoe UI, Malgun Gothic, Arial";
+      ctx.textAlign = "right";
+      ctx.textBaseline = "middle";
+
+      yTicks.forEach((tick) => {
+        ctx.strokeStyle = "#edf2f7";
+        ctx.beginPath();
+        ctx.moveTo(plot.left, tick.y);
+        ctx.lineTo(plot.right, tick.y);
+        ctx.stroke();
+        ctx.fillText(labelFormatter(tick.value), plot.left - 8, tick.y);
+      });
+    }
+
+    function renderLineChart(filteredRows) {
+      const { ctx, width, height } = setupCanvas(lineCanvas);
+      ctx.clearRect(0, 0, width, height);
+
+      const plot = { left: 62, right: width - 20, top: 24, bottom: height - 44 };
+      const values = filteredRows.map((row) => row.total);
+      const max = Math.max(...values);
+      const minY = 0;
+      const maxY = getAxisMax(max);
+      const yScale = (value) => plot.bottom - ((value - minY) / (maxY - minY)) * (plot.bottom - plot.top);
+      const xScale = (index) => filteredRows.length === 1
+        ? (plot.left + plot.right) / 2
+        : plot.left + (index / (filteredRows.length - 1)) * (plot.right - plot.left);
+
+      const ticks = [0, 0.25, 0.5, 0.75, 1].map((rate) => {
+        const value = minY + (maxY - minY) * rate;
+        return { value, y: yScale(value) };
+      });
+
+      drawAxes(ctx, plot, ticks, (value) => formatNumber(Math.round(value)));
+
+      ctx.fillStyle = "#64748b";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "top";
+      filteredRows.forEach((row, index) => {
+        const showLabel = filteredRows.length <= 8 || index % 2 === 0;
+        if (showLabel) ctx.fillText(row.year, xScale(index), plot.bottom + 12);
+      });
+
+      ctx.strokeStyle = "#1f5f99";
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      filteredRows.forEach((row, index) => {
+        const x = xScale(index);
+        const y = yScale(row.total);
+        if (index === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      });
+      ctx.stroke();
+
+      filteredRows.forEach((row, index) => {
+        const x = xScale(index);
+        const y = yScale(row.total);
+        const isTopYear = row.year === 2008;
+
+        ctx.fillStyle = isTopYear ? "#d48806" : "#ffffff";
+        ctx.strokeStyle = isTopYear ? "#d48806" : "#1f5f99";
+        ctx.lineWidth = isTopYear ? 4 : 2;
+        ctx.beginPath();
+        ctx.arc(x, y, isTopYear ? 6 : 4, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        if (isTopYear) {
+          ctx.fillStyle = "#1f2937";
+          ctx.font = "700 12px Segoe UI, Malgun Gothic, Arial";
+          ctx.textAlign = "center";
+          ctx.textBaseline = "bottom";
+          ctx.fillText("2008년", x, y - 11);
+        }
+      });
+    }
+
+    function renderBarChart(filteredRows, selectedCategories) {
+      const { ctx, width, height } = setupCanvas(barCanvas);
+      ctx.clearRect(0, 0, width, height);
+
+      const plot = { left: 58, right: width - 20, top: 24, bottom: height - 60 };
+      const totals = selectedCategories.map((category) => ({
+        ...category,
+        value: sum(filteredRows, category.key)
+      }));
+      const max = Math.max(...totals.map((item) => item.value));
+      const maxY = getAxisMax(max);
+      const yScale = (value) => plot.bottom - (value / maxY) * (plot.bottom - plot.top);
+      const barGap = 10;
+      const barWidth = Math.max(24, ((plot.right - plot.left) - barGap * (totals.length - 1)) / totals.length);
+      const ticks = [0, 0.25, 0.5, 0.75, 1].map((rate) => {
+        const value = maxY * rate;
+        return { value, y: yScale(value) };
+      });
+
+      drawAxes(ctx, plot, ticks, (value) => formatNumber(Math.round(value)));
+
+      ctx.font = "700 12px Segoe UI, Malgun Gothic, Arial";
+      ctx.textAlign = "center";
+      totals.forEach((item, index) => {
+        const x = plot.left + index * (barWidth + barGap);
+        const y = yScale(item.value);
+        const heightValue = plot.bottom - y;
+
+        ctx.fillStyle = item.color;
+        ctx.fillRect(x, y, barWidth, heightValue);
+
+        ctx.fillStyle = "#17202a";
+        ctx.textBaseline = "bottom";
+        ctx.fillText(formatNumber(item.value), x + barWidth / 2, y - 6);
+
+        ctx.save();
+        ctx.translate(x + barWidth / 2, plot.bottom + 12);
+        ctx.rotate(-Math.PI / 8);
+        ctx.fillStyle = "#64748b";
+        ctx.textAlign = "right";
+        ctx.textBaseline = "middle";
+        ctx.fillText(item.label, 0, 0);
+        ctx.restore();
+      });
+    }
+
+    function renderLegend(selectedCategories) {
+      barLegend.innerHTML = "";
+      selectedCategories.forEach((category) => {
+        const item = document.createElement("span");
+        item.className = "legend-item";
+        const swatch = document.createElement("span");
+        swatch.className = "swatch";
+        swatch.style.background = category.color;
+        item.append(swatch, category.label);
+        barLegend.append(item);
+      });
+    }
+
+    function render() {
+      const filteredRows = getFilteredRows();
+      const selectedCategories = getSelectedCategories();
+      const hasRows = filteredRows.length > 0;
+
+      emptyNote.style.display = hasRows ? "none" : "block";
+      chartGrid.style.display = hasRows ? "grid" : "none";
+
+      if (!hasRows) return;
+
+      renderSummary(filteredRows, selectedCategories);
+      renderTable(filteredRows, selectedCategories);
+      renderLineChart(filteredRows);
+      renderBarChart(filteredRows, selectedCategories);
+      renderLegend(selectedCategories);
+    }
+
+    window.addEventListener("resize", () => {
+      renderLineChart(getFilteredRows());
+      renderBarChart(getFilteredRows(), getSelectedCategories());
+    });
+
+    initFilters();
+    render();
+  </script>
+</body>
+</html>
